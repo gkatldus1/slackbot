@@ -17,6 +17,8 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "http": "0.0.1-security",
+    "node-cron": "^3.0.0",
+    "node-fetch": "^2.6.1",
     "slack-node": "^0.1.8",
     "slackbots": "^1.2.0"
   }
