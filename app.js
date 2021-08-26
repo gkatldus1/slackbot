@@ -23,16 +23,15 @@ const app = new App({
 });
 
 
-// let food_arr = ['짜장면', '비빔밥', '칼국수', '백반', '카레', '고무고무열매', '이글이글열매', '도톰도톰열매'];
+
 let wanna_eat = ['itzy', 'nanana', 'lalala', 'lololo', 'kakaka', 'gyuhong', 'gyuha', 'minhwan', 'siyeon'];
 let food_arr = [];
-let eat_list = [];
 let food1 = [];
 let food2 = [];
 let food3 = [];
 let day = 1;
 
-// let record = {'홍길동':['짜장면', '비빔밥', '칼국수'], '김선비':['짜장면', '비빔밥', '칼국수'], '최규옹':['짜장면', '비빔밥', '칼국수'], '김민완':['짜장면', '비빔밥', '칼국수'],'이규아':['짜장면', '비빔밥', '칼국수'], '함시현':['짜장면', '비빔밥', '칼국수']};
+
 let fs = require('fs');
 const { create } = require('domain');
 fs.readFile('foodList.txt', 'utf-8', function(err, data) {
@@ -115,7 +114,27 @@ connection.connect();
 
 
 
-(async () => {
+// (async () => {
+//   const result = await Record.findAll({
+//     attributes: ['food1', 'food2', 'food3']
+//   });
+  
+//   // console.log(result[0].dataValues);
+//   for(let i = 0; i < result.length; i++) {
+//     eat_list.push(result[i].dataValues);
+//   }
+//   food1 = eat_list.map(function(rowData){ return rowData.food1;});
+//   food2 = eat_list.map(function(rowData){ return rowData.food2;});
+//   food3 = eat_list.map(function(rowData){ return rowData.food3;});
+
+// })();
+
+
+app.message('!점심', async({ message, say }) => {
+  let suggestion = '';
+  let menu = food_arr;
+  let food_number = 19;
+  let eat_list = [];
   const result = await Record.findAll({
     attributes: ['food1', 'food2', 'food3']
   });
@@ -127,18 +146,6 @@ connection.connect();
   food1 = eat_list.map(function(rowData){ return rowData.food1;});
   food2 = eat_list.map(function(rowData){ return rowData.food2;});
   food3 = eat_list.map(function(rowData){ return rowData.food3;});
-
-  // console.log(eat_list);
-  // console.log(food1);
-  // console.log(food2);
-  // console.log(food3);
-})();
-
-
-app.message('!점심', async({ message, say }) => {
-  let suggestion = '';
-  let menu = food_arr;
-  let food_number = 19;
   while(1){
     
     let random = Math.floor(Math.random() * food_number);
@@ -181,7 +188,6 @@ app.message('!점심', async({ message, say }) => {
 
   
   let column = `food${day}`;
-  let ids  = [1,2,3,4,5,6,7,8,9];
   await Record.update({
     [column]: suggestion
   },{
@@ -191,7 +197,7 @@ app.message('!점심', async({ message, say }) => {
       }
     }
   });
-  // console.log(day);
+  
   
 })
 
