@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const cron = require("node-cron");
 const mysql = require('mysql');
 const { Record } = require('./models');
-
+const { Op } = require("sequelize");
 
 // let usersRouter = require('./routes/users');
 let sequelize = require('./models/index').sequelize;
@@ -24,13 +24,19 @@ const app = new App({
 
 
 // let food_arr = ['짜장면', '비빔밥', '칼국수', '백반', '카레', '고무고무열매', '이글이글열매', '도톰도톰열매'];
-// let wanna_eat = ['홍길동', '김선비', '최규옹', '김민완', '이규아', '함시현'];
+let wanna_eat = ['itzy', 'nanana', 'lalala', 'lololo', 'kakaka', 'gyuhong', 'gyuha', 'minhwan', 'siyeon'];
+let food_arr = [];
+let eat_list = [];
+let food1 = [];
+let food2 = [];
+let food3 = [];
+let day = 1;
+
 // let record = {'홍길동':['짜장면', '비빔밥', '칼국수'], '김선비':['짜장면', '비빔밥', '칼국수'], '최규옹':['짜장면', '비빔밥', '칼국수'], '김민완':['짜장면', '비빔밥', '칼국수'],'이규아':['짜장면', '비빔밥', '칼국수'], '함시현':['짜장면', '비빔밥', '칼국수']};
 let fs = require('fs');
+const { create } = require('domain');
 fs.readFile('foodList.txt', 'utf-8', function(err, data) {
-  console.log(data);
-  let foods = data.split(' ');
-  console.log(foods);
+  food_arr = data.split(" ");
 })
 
 
@@ -63,93 +69,131 @@ connection.connect();
 //   console.log('The solution is:', results[0].solution);
 // })
 
-
-// Record.create({
-//     name:"제이슨",
-//     food1:'카레',
-//     food2:'김치찌개',
-//     food3:'오렌지',
-//   });
-
-// Record.create({
-//   name:"gyuhaa",
-//   food1:'오렌지',
-//   food2:'백반',
-//   food3:'카레',
-// });
-// Record.create({
-//   name:'harryy',
-//   food1:'오렌지',
-//   food2:"된장찌개",
-//   food3:"짜장",
-// });
-// Record.create({
-//   name:'jasonn',
-//   food1:'김치찌개',
-//   food2:"칼국수",
-//   food3:"청국장",
-// });
-
-// Record.create({
-//   name: 'itzy',
-//   food1: '짜장',
-//   food2: "짬뽕",
+// content = [{
+  
+//   name: 'gyuhong',
+//   food1: '닭가슴살',
+//   food2: "청경채",
 //   food3: "청국장",
-// });
+// },
+
+// {
+  
+//   name: 'gyuha',
+//   food1: '백반',
+//   food2: "짜장",
+//   food3: "돈까스",
+// },
+
+// {
+  
+//   name: 'minhwan',
+//   food1: '도시락',
+//   food2: "군만두",
+//   food3: "김치찌개",
+// },
+
+// {
+  
+//   name: 'siyeon',
+//   food1: '칼국수',
+//   food2: "카레",
+//   food3: "백반",
+// },
+
+// {
+  
+//   name: 'kakaka',
+//   food1: '닭가슴살',
+//   food2: "군만두",
+//   food3: "백반",
+// }];
+
+// (async () => {
+//   const insert = await Record.bulkCreate(content);
+// })();
 
 
 
+(async () => {
+  const result = await Record.findAll({
+    attributes: ['food1', 'food2', 'food3']
+  });
+  
+  // console.log(result[0].dataValues);
+  for(let i = 0; i < result.length; i++) {
+    eat_list.push(result[i].dataValues);
+  }
+  food1 = eat_list.map(function(rowData){ return rowData.food1;});
+  food2 = eat_list.map(function(rowData){ return rowData.food2;});
+  food3 = eat_list.map(function(rowData){ return rowData.food3;});
 
-connection.end();
-
+  // console.log(eat_list);
+  // console.log(food1);
+  // console.log(food2);
+  // console.log(food3);
+})();
 
 
 app.message('!점심', async({ message, say }) => {
-    let suggestion = '';
-    while(1){
-      
-      let menu = food_arr;
-      let random = Math.floor(Math.random() * 8);
-      let food = menu[random];
-      
-      for (let i = 0; i < wanna_eat.length; i++){
-        let user = record[wanna_eat[i]];
-        
-        if(user){
-          result = user.includes(food);
-          if(result === true){
-            flag = false;
-            let index = menu.indexOf(food);
-            if (index > -1) {
-              menu.splice(index, 1);
+  let suggestion = '';
+  let menu = food_arr;
+  let food_number = 19;
+  while(1){
+    
+    let random = Math.floor(Math.random() * food_number);
+    let food = menu[random];
+    if(food1.includes(food) || food2.includes(food) || food3.includes(food)){
+      let index = menu.indexOf(food);
+          if (index > -1) {
+            console.log(menu);
+            menu.splice(index, 1);
+            food_number --;
+          }
+          if (menu.length === 0){
+            suggestion = '백반';
+            day ++;
+            if (day === 4){
+              day = 1;
             }
             break;
-          } else {
-            flag = true;
-          } 
-
-        } 
-          
+          }
+    } else {
+      flag = true;
+      suggestion = food;
+    }
+    
+    if (flag === true){
+      console.log(suggestion);
+      flag = false;
+      day ++;
+      if (day === 4){
+        day = 1;
       }
-      if (flag === true) {
-        flag = false;
-        suggestion = food;
-        for (let i = 0; i < wanna_eat.length; i++){
-            let user = record[wanna_eat[i]];
-            user.shift();
-            user.push(food);
-        }
-        break;
+      break;
     }
       
+  }
 
-    }
-    console.log(suggestion);
+  await say({
+      text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.`
+  });
+
   
-    await say({
-        text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.`
-    });
-});
+  let column = `food${day}`;
+  let ids  = [1,2,3,4,5,6,7,8,9];
+  await Record.update({
+    [column]: suggestion
+  },{
+    where:{
+      id: {
+        [Op.in]: [1,2,3,4,5,6,7,8,9]
+      }
+    }
+  });
+  // console.log(day);
+  
+})
 
 app.action('count_clicker', async ({ body, ack, say }) => {
     // Acknowledge the action
@@ -232,8 +276,13 @@ const payload = {
   }, {
     scheduled: false
   });
+
  
-  task.start();
+task.start();
+connection.end();
+
+
+
 
 (async () => {
     await app.start(process.env.PORT || 3000);
