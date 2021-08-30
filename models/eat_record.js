@@ -13,19 +13,9 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             unique: false,
         },
-        food1: {
-            type: DataTypes.STRING(20),
-            allowNull: false,
-            unique: false,
-        },
-        food2: {
-            type: DataTypes.STRING(20),
-            allowNull: false,
-            unique: false,
-        },
-        food3: {
-            type: DataTypes.STRING(20),
-            allowNull: false,
+        food_list: {
+            type: DataTypes.TEXT,
+            allowNull: true,
             unique: false,
         },
     }, {
