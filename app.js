@@ -5,8 +5,14 @@ const cron = require("node-cron");
 const mysql = require('mysql');
 const { Record } = require('./models');
 const { Op } = require("sequelize");
+const request = require('request');
+const qs = require("querystring");
+
 
 let sequelize = require('./models/index').sequelize;
+
+let client_id = `${process.env.CLIENT_ID}`;
+let client_secret = `${process.env.CLIENT_SECRET}`;
 
 dotenv.config()
 
@@ -36,6 +42,7 @@ let connection = mysql.createConnection({
   password : `${process.env.PASSWD}`,
   database: 'mydb'
 })
+
 
 
 //// data inserting section
@@ -161,6 +168,42 @@ app.message('!점심', async({ message, say }) => {
       break;
     }     
   }
+
+  let search_string = '남부터미널' + `${suggestion}` + '맛집';
+  const option = {
+    query : search_string,
+    start : 1,
+    display: 3,
+    sort: 'comment',
+  }
+  api_url = `https://openapi.naver.com/v1/search/local?query=${qs.escape("남부터미널 된장찌개 맛집")}`;
+
+  request.get({
+    url: 'https://openapi.naver.com/v1/search/local',
+    qs : option,
+    headers:{
+      'X-Naver-Client-Id': `${process.env.CLIENT_ID}`,
+      'X-Naver-Client-Secret': `${process.env.CLIENT_SECRET}`
+    }
+  }, function(err, res, body) {
+    let json = JSON.parse(body);
+    console.log(json)
+  })
+  // let options = {
+  //   url: api_url
+  // }
+
+  // request.get()
+
+
+
+
+
+
+
+
+
+
 
   await say({
       text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.`
