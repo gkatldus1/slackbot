@@ -4,15 +4,8 @@ const fetch = require("node-fetch");
 const cron = require("node-cron");
 const mysql = require('mysql');
 const { Record } = require('./models');
-const { Op } = require("sequelize");
+// const { Op } = require("sequelize");
 const request = require('request');
-const qs = require("querystring");
-
-
-let sequelize = require('./models/index').sequelize;
-
-let client_id = `${process.env.CLIENT_ID}`;
-let client_secret = `${process.env.CLIENT_SECRET}`;
 
 dotenv.config()
 
@@ -31,7 +24,7 @@ let day = 0;
 
 
 let fs = require('fs');
-const { create } = require('domain');
+// const { create } = require('domain');
 fs.readFile('foodList.txt', 'utf-8', function(err, data) {
   food_arr = data.split(" ");
 })
@@ -119,6 +112,7 @@ app.message('!점심', async({ message, say }) => {
   let menu = food_arr;
   let food_number = menu.length;
   let food_all =[];
+  let restaurant = [];
   const result = await Record.findAll({ //db 관리할 데이터(가져올) 설정 부분
     attributes: ['food_list']
   });
@@ -176,7 +170,7 @@ app.message('!점심', async({ message, say }) => {
     display: 3,
     sort: 'comment',
   }
-  api_url = `https://openapi.naver.com/v1/search/local?query=${qs.escape("남부터미널 된장찌개 맛집")}`;
+  // api_url = `https://openapi.naver.com/v1/search/local?query=${qs.escape("남부터미널 된장찌개 맛집")}`;
 
   request.get({
     url: 'https://openapi.naver.com/v1/search/local',
@@ -187,27 +181,31 @@ app.message('!점심', async({ message, say }) => {
     }
   }, function(err, res, body) {
     let json = JSON.parse(body);
-    console.log(json)
+    console.log(json);
+    restaurant.push(json.items[0]);
+    restaurant.push(json.items[1]);
+    console.log(restaurant);
   })
-  // let options = {
-  //   url: api_url
-  // }
-
-  // request.get()
-
-
-
-
-
-
-
-
-
-
-
-  await say({
-      text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.`
-  });
+  setTimeout(() => {
+    if(restaurant[0] !== undefined && restaurant[1] !== undefined) {
+      say({
+          text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.\n추천 음식점은 ${restaurant[0].address}의 ${restaurant[0].title}과\n${restaurant[1].address}의 ${restaurant[1].title}입니다`,
+      });
+    } else if(restaurant[0] !== undefined) {
+      say({
+        text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.\n추천 음식점은 ${restaurant[0].address}의 ${restaurant[0].title}입니다`,
+    });
+    } else {
+      say({
+        text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.`,
+    });
+    }
+  }, 1000);
+  
+  // await say({
+  //     text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.\n
+  //           추천 음식점은 ${restaurant[0].address}의 ${restaurant[0].title}과 ${restaurant[1].address}의 ${restaurant[1].title}`,
+  // });
 
   // 추천한 음식으로 db 레코드 업데이트
   for(let i = 0; i < food_all.length; i++){
@@ -241,7 +239,6 @@ app.action('count_clicker', async ({ body, ack, say }) => {
     }
     
 });
-
 
 
 // Channel you want to post the message to
@@ -303,13 +300,9 @@ const payload = {
   }, {
     scheduled: false
   });
-
  
 task.start();
 connection.end();
-
-
-
 
 (async () => {
     await app.start(process.env.PORT || 3000);
