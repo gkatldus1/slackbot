@@ -188,8 +188,18 @@ app.message('!점심', async({ message, say }) => {
   })
   setTimeout(() => {
     if(restaurant[0] !== undefined && restaurant[1] !== undefined) {
+      let temp1 = restaurant[0].title;
+      let temp2 = restaurant[1].title;
+      
+      const regex = /(<([^>]+)>)/gi;
+      let res1 = temp1.replace(regex, '');
+      let res2 = temp2.replace(regex, '');
+      console.log(res1);
+      console.log(res2);
+
+
       say({
-          text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.\n추천 음식점은 ${restaurant[0].address}의 ${restaurant[0].title}과\n${restaurant[1].address}의 ${restaurant[1].title}입니다`,
+          text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.\n추천 음식점은 ${restaurant[0].address}의 ${res1}과(와)\n${restaurant[1].address}의 ${res2}입니다`,
       });
     } else if(restaurant[0] !== undefined) {
       say({
