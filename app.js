@@ -18,6 +18,7 @@ const app = new App({
 
 
 
+
 let wanna_eat = []; // 후에 점심 식사를 하실 이용자들의 아이디를 넣을 배열
 let food_arr = [];
 let day = 0;
@@ -186,6 +187,24 @@ app.message('!점심', async({ message, say }) => {
     restaurant.push(json.items[1]);
     console.log(restaurant);
   })
+
+
+  let position = "center=312842,544052";
+  request.get({
+    url: 'https://naveropenapi.apigw.ntruss.com/map-static/v2/raster',
+    headers:{
+      'X-NCP-APIGW-API-KEY-ID':`${process.env.MAP_ID}`,
+      'X-NCP-APIGW-API-KEY': `${process.env.MAP_SECRET}`
+    },
+    center: position,
+    // format: jpg,
+
+  }, function(err, res, body) {
+    console.log(body);
+    console.log('test');
+  });
+
+
   setTimeout(() => {
     if(restaurant[0] !== undefined && restaurant[1] !== undefined) {
       let temp1 = restaurant[0].title;
@@ -194,17 +213,38 @@ app.message('!점심', async({ message, say }) => {
       const regex = /(<([^>]+)>)/gi;
       let res1 = temp1.replace(regex, '');
       let res2 = temp2.replace(regex, '');
-      console.log(res1);
-      console.log(res2);
+      // console.log(res1);
+      // console.log(res2);
 
 
       say({
           text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.\n추천 음식점은 ${restaurant[0].address}의 ${res1}과(와)\n${restaurant[1].address}의 ${res2}입니다`,
       });
+      if(restaurant[0].link !== '' && restaurant[1].link !== ''){
+        say({
+          text:`관련 음식점의 url은 ${restaurant[0].link} 와 ${restaurant[1].link} 입니다.`,
+      });
+      
+      } else if(restaurant[0].link !== '') {
+        say({
+          text:`관련 음식점의 url은 ${restaurant[0].link} 입니다.`,
+      });
+      } else if(restaurant[1].link !== '') {
+        say({
+          text:`관련 음식점의 url은 ${restaurant[1].link} 입니다.`,
+      });
+      }
+
     } else if(restaurant[0] !== undefined) {
       say({
         text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.\n추천 음식점은 ${restaurant[0].address}의 ${restaurant[0].title}입니다`,
     });
+    if(restaurant[0].link !== ''){
+      say({
+        text:`관련 음식점의 url은 ${restaurant[0].link} 입니다.`,
+    });
+    
+    }
     } else {
       say({
         text:`오늘 점심은 ${suggestion}을(를) 추천드립니다.`,
